@@ -28,6 +28,7 @@ function getFiles() {
                                 var jsSrc = $(link).attr('src');
                                 var jsEntireSrc = path.resolve(currentPath, jsSrc);
 
+
                                 js2html[jsEntireSrc] = jsSrc;
                                 console.log(js2html);
                             })
