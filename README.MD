@@ -1,0 +1,2 @@
+## USAGE
+html文件中的命名应该跟entry中的key一致，因为entry中的vaule它会有很多依赖，不应该以value的js作为html中的地址。
