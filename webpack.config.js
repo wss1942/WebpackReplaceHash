@@ -7,7 +7,7 @@ var Replace = require('./WebpackReplaceHash');
 module.exports = {
     context: __dirname,
     entry: {
-        bundle: './demo.js',
+        demo: './demo.js',
         pageAHello: './pageA/hello.js'
     },
     output: {
