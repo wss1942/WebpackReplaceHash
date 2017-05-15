@@ -1,5 +1,4 @@
 var path = require("path");
-var ManifestPlugin = require('webpack-manifest-plugin');
 var webpack = require("webpack");
 
 var Replace = require('./WebpackReplaceHash');
@@ -19,9 +18,6 @@ module.exports = {
     plugins: [
         new webpack.LoaderOptionsPlugin({
             debug: true
-        }),
-        new ManifestPlugin({
-            writeToFileEmit: true
         }),
         new Replace()
     ]

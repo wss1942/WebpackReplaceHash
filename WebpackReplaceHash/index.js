@@ -1,9 +1,23 @@
 const path = require('path');
 const cheerio = require('cheerio');
 const fse = require('fs-extra');
-const oldCache = require('../dist/cacheHash.json');
 
+const hashCacheSrc = './dist/cacheHash.json';
 var currentPath = path.resolve(__dirname, '../');
+var oldCache;
+
+fse.exists(hashCacheSrc, (exists) => {
+    const cachePath = path.resolve(currentPath,hashCacheSrc);
+    console.log(exists ? 'it\'s there' : 'no passwd!');
+    if (exists) {
+        oldCache = require(cachePath);
+    } else {
+        fse.outputFileSync(cachePath, '{"1":"1"}');
+        oldCache = require(cachePath);
+    }
+});
+
+
 var js2html = {}; // key是js文件路径，value是html文件的路径的数组
 var jsEntire = {}; // key是js文件路径，value是html文件的路径的数组
 var updateJS = {};
@@ -123,7 +137,7 @@ WebpackReplaceHash.prototype.apply = function(compiler) {
                 const hash = chunk.hash;
                 cacheHash[requestFile] = hash;
 
-                if (oldCache[requestFile] !== hash) {
+                if (oldCache[requestFile] && oldCache[requestFile] !== hash) {
                     updateJS[requestFile] = chunk.entryModule.rawRequest;
                     console.log('此文件需要修改' + requestFile);
                 }

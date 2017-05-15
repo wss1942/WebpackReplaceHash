@@ -1,7 +1,6 @@
 {
   "name": "plugin-test",
   "dependencies": {
-    "webpack": "^2.5.1",
-    "webpack-manifest-plugin": "^1.1.0"
+    "webpack": "^2.5.1"
   }
 }
