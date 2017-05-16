@@ -3,23 +3,18 @@ const cheerio = require('cheerio');
 const fse = require('fs-extra');
 
 const hashCacheSrc = './dist/cacheHash.json';
-var currentPath = path.resolve(__dirname, '../');
+const currentPath = path.resolve(__dirname, '../');
+
+const cachePath = path.resolve(currentPath, hashCacheSrc);
 var oldCache;
 
-fse.exists(hashCacheSrc, (exists) => {
-    const cachePath = path.resolve(currentPath,hashCacheSrc);
-    console.log(exists ? 'it\'s there' : 'no passwd!');
-    if (exists) {
-        oldCache = require(cachePath);
-    } else {
-        fse.outputFileSync(cachePath, '{"1":"1"}');
-        oldCache = require(cachePath);
-    }
-});
+if (fse.existsSync(hashCacheSrc)) {
+    oldCache = require(cachePath);
+} else {
+    fse.outputFileSync(cachePath, '{"1":"1"}');
+    oldCache = require(cachePath);
+}
 
-
-var js2html = {}; // key是js文件路径，value是html文件的路径的数组
-var jsEntire = {}; // key是js文件路径，value是html文件的路径的数组
 var updateJS = {};
 var entry;
 var outputFolder;
@@ -62,8 +57,6 @@ function getJsSrcInHTML(file, context) {
                             }
                         }
                     }
-                    jsEntire[jsEntireSrc] = jsSrc;
-                    addJsSrc.call(js2html, jsEntireSrc, file);
                 });
 
                 var json = $.html();
@@ -78,29 +71,11 @@ function getJsSrcInHTML(file, context) {
     })
 }
 
-function addJsSrc(jsEntireSrc, jsSrc) {
-    if (!this[jsEntireSrc] || !Array.isArray(this[jsEntireSrc])) {
-        this[jsEntireSrc] = [];
-    }
-
-    this[jsEntireSrc].push(jsSrc);
-}
-
 // 获取哪些js文件改动了，需要进行更新。
 function getChangedFiles() {
     // 可以通过比较mainfest.json的前后两次的那个属相变了来比较。目前还没有在compilation
     // 对象中找到相关信息。
     // 思路：webpack不会每次都对没有改动的文件进行重新打包，所以他是如何判断文件是否改变的呢？
-}
-
-function log(fn) {
-    if (log.timer) {
-        clearTimeout(log.timer);
-    }
-
-    log.timer = setTimeout(function() {
-        fn()
-    }, 200);
 }
 
 
@@ -112,7 +87,6 @@ WebpackReplaceHash.prototype.apply = function(compiler) {
 
     compiler.plugin('after-emit', function(compilation) {
         entry = compilation.options.entry;
-
 
         compilation.chunks.map(function(chunk) {
             chunkObj[chunk.name] = chunk.files[0];
@@ -126,20 +100,14 @@ WebpackReplaceHash.prototype.apply = function(compiler) {
 
     compiler.plugin('compilation', function(compilation, params) {
         compilation.plugin('record', function(compilation, records) {
-            console.log('-----缓存---------');
-            console.log(oldCache);
-            console.log('   ');
             var cacheHash = {};
             compilation.chunks.map(function(chunk) {
-
-
                 const requestFile = chunk.entryModule.userRequest;
                 const hash = chunk.hash;
                 cacheHash[requestFile] = hash;
 
-                if (oldCache[requestFile] && oldCache[requestFile] !== hash) {
+                if (oldCache[requestFile] !== hash) {
                     updateJS[requestFile] = chunk.entryModule.rawRequest;
-                    console.log('此文件需要修改' + requestFile);
                 }
             })
 
